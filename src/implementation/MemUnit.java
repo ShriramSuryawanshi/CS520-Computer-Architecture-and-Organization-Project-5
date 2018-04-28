@@ -71,6 +71,8 @@ public class MemUnit extends FunctionalUnitBase {
                 return;
             }
 
+            doPostedForwarding(input);
+
             this.addStatusWord("Addr=" + input.getPropertyInteger("address"));
 
             output.copyAllPropertiesFrom(input);
@@ -91,6 +93,7 @@ public class MemUnit extends FunctionalUnitBase {
             if (input.isNull()) {
                 return;
             }
+            doPostedForwarding(input);
 
             InstructionBase ins = input.getInstruction();
 
@@ -117,6 +120,7 @@ public class MemUnit extends FunctionalUnitBase {
                     // in oper0, which was fetched in Decode.
                     memory[addr] = oper0val;
                     addStatusWord("Mem[" + addr + "]=" + oper0.getValueAsString());
+                    output.setInstruction(ins);
                     return;
 
                 default:
@@ -128,7 +132,7 @@ public class MemUnit extends FunctionalUnitBase {
     @Override
     public void createPipelineRegisters() {
         createPipeReg("AddrToLSQ");
-        createPipeReg("LSQToDCache");
+        createPipeReg("LsqToDcache");
         createPipeReg("out");
     }
 
@@ -147,7 +151,7 @@ public class MemUnit extends FunctionalUnitBase {
     public void createConnections() {
         //addRegAlias("Delay.out", "out");
         connect("in:Addr", "AddrToLSQ", "LSQ");
-        connect("LSQ", "LSQToDCache", "DCache");
+        connect("LSQ", "LsqToDcache", "DCache");
         connect("DCache", "out");
     }
 

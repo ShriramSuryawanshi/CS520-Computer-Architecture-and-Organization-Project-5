@@ -8,6 +8,7 @@ package implementation;
 import baseclasses.PipelineRegister;
 import baseclasses.PipelineStageBase;
 import baseclasses.CpuCore;
+import baseclasses.InstructionBase;
 import tools.InstructionSequence;
 import utilitytypes.IGlobals;
 import utilitytypes.IPipeReg;
@@ -38,6 +39,10 @@ public class MyCpuCore extends CpuCore {
             GlobalData.rat[i] = i;
             regfile.markUsed(i, true);
         }
+
+        for (int i = 0; i < 256; i++) {
+            GlobalData.IQ[i] = "NULL";
+        }
     }
 
     public void loadProgram(InstructionSequence program) {
@@ -53,13 +58,20 @@ public class MyCpuCore extends CpuCore {
             IRegFile regfile = globals.getRegisterFile();
 
             //@shree - setting registers free
+            String RegNames = "";
             for (int i = 0; i < 256; i++) {
 
                 if ((!regfile.isInvalid(i)) && (regfile.isRenamed(i)) && (regfile.isUsed(i))) {
                     regfile.markUsed(i, false);
-                    Logger.out.println("# Freeing: P" + i);
+
+                    RegNames = RegNames + " P" + i;
                 }
             }
+
+            if (RegNames.length() > 0) {
+                Logger.out.println("# Freeing:" + RegNames);
+            }
+
             advanceClock();
         }
     }
@@ -76,8 +88,8 @@ public class MyCpuCore extends CpuCore {
         createPipeReg("IQToFloatMul");
         createPipeReg("IQToIntDiv");
         createPipeReg("ExecuteToWriteback");
-        createPipeReg("FloatDivToWriteback");
-        createPipeReg("IntDivToWriteback");
+        createPipeReg("FDivToWriteback");
+        createPipeReg("IDivToWriteback");
         // createPipeReg("MemoryToWriteback");
     }
 
@@ -121,19 +133,19 @@ public class MyCpuCore extends CpuCore {
         connect("Decode", "DecodeToIQ", "IssueQueue");
         connect("IssueQueue", "IQToExecute", "Execute");
         connect("IssueQueue", "IQToMemory", "MemUnit");
-        connect("IssueQueue", "IQToIntMul", "IntMul");  
         connect("IssueQueue", "IQToIntDiv", "IntDiv");
+        connect("IssueQueue", "IQToFloatDiv", "FloatDiv");
+        connect("IssueQueue", "IQToIntMul", "IntMul");
         connect("IssueQueue", "IQToFloatAddSub", "FloatAddSub");
         connect("IssueQueue", "IQToFloatMul", "FloatMul");
-        connect("IssueQueue", "IQToFloatDiv", "FloatDiv");
 
         // Writeback has multiple input connections from different execute
         // units.  The output from MSFU is really called "MSFU.Delay.out",
         // which was aliased to "MSFU.out" so that it would be automatically
         // identified as an output from MSFU.
         connect("Execute", "ExecuteToWriteback", "Writeback");
-        connect("IntDiv", "IntDivToWriteback", "Writeback");
-        connect("FloatDiv", "FloatDivToWriteback", "Writeback");
+        connect("IntDiv", "IDivToWriteback", "Writeback");
+        connect("FloatDiv", "FDivToWriteback", "Writeback");
         connect("FloatAddSub", "Writeback");
         connect("FloatMul", "Writeback");
         connect("IntMul", "Writeback");
@@ -143,9 +155,8 @@ public class MyCpuCore extends CpuCore {
     @Override
     public void specifyForwardingSources() {
         addForwardingSource("ExecuteToWriteback");
-        addForwardingSource("IntDivToWriteback");
-        addForwardingSource("FloatDivToWriteback");
-        addForwardingSource("MemUnit.out");
+        addForwardingSource("IDivToWriteback");
+        addForwardingSource("FDivToWriteback");
 
         //   addForwardingSource("MemoryToWriteback");
         // MSFU.specifyForwardingSources is where this forwarding source is added

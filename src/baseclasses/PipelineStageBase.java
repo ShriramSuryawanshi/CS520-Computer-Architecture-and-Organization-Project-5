@@ -401,9 +401,9 @@ public class PipelineStageBase extends ComponentBase implements IPipeStage {
      */
     @Override
     public void doPostedForwarding(Latch input) {
-        if (input.isDuplicate()) {
-            throw new RuntimeException("doPostedForwarding must be called on the original input latch!");
-        }
+//        if (input.isDuplicate()) {
+   //         throw new RuntimeException("doPostedForwarding must be called on the original input latch!");
+      //  }
         InstructionBase ins = input.getInstruction();
         ICpuCore core = getCore();
         

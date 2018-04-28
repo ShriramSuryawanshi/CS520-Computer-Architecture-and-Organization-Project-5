@@ -6,6 +6,7 @@
 package implementation;
 
 import baseclasses.InstructionBase;
+import baseclasses.Latch;
 import baseclasses.PropertiesContainer;
 import java.util.Map;
 import java.util.Set;
@@ -39,6 +40,9 @@ public class GlobalData extends PropertiesContainer implements IGlobals {
     public static int MSFD_cnt = 0;
     public static int MSID_cnt = 0;
     public static int[] rat = new int[32];
+    public static String[] IQ = new String[256];
+    public static Latch[] latches = new Latch[256];
+    public static int Fdiv_sent = -1;
 
     @Override
     public void setup() {

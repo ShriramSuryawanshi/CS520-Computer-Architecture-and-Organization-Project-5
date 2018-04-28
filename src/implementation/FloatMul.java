@@ -59,7 +59,7 @@ public class FloatMul extends FunctionalUnitBase {
 
     @Override
     public void createPipelineRegisters() {
-        createPipeReg("MathToDelay");
+        createPipeReg("FMulToDelay");
     }
 
     @Override
@@ -76,7 +76,7 @@ public class FloatMul extends FunctionalUnitBase {
     @Override
     public void createConnections() {
         addRegAlias("Delay.out", "out");
-        connect("in", "MathToDelay", "Delay");
+        connect("in", "FMulToDelay", "Delay");
     }
 
     @Override

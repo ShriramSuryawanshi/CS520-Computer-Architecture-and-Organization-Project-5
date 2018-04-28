@@ -66,7 +66,7 @@ public class FloatAddSub extends FunctionalUnitBase {
 
     @Override
     public void createPipelineRegisters() {
-        createPipeReg("MathToDelay");
+        createPipeReg("FAddToDelay");
     }
 
     @Override
@@ -83,7 +83,7 @@ public class FloatAddSub extends FunctionalUnitBase {
     @Override
     public void createConnections() {
         addRegAlias("Delay.out", "out");
-        connect("in", "MathToDelay", "Delay");
+        connect("in", "FAddToDelay", "Delay");
     }
 
     @Override
